@@ -40,6 +40,8 @@ export function Cena({
   jogadorPintado = false,
   marcarJogador = false,
   rotuloContinuar = 'Continuar',
+  titulo,
+  etiqueta,
 }: {
   palco: Palco;
   perfil: Perfil;
@@ -52,6 +54,8 @@ export function Cena({
   jogadorPintado?: boolean;
   marcarJogador?: boolean;
   rotuloContinuar?: string;
+  titulo?: string;
+  etiqueta?: { texto: string; tipo: string };
 }) {
   const [fase, setFase] = useState<Fase>('entrando');
   const [escolhida, setEscolhida] = useState<number | null>(null);
@@ -204,70 +208,78 @@ export function Cena({
   const mostrarOpcoes = fase === 'escolhendo' || fase === 'consequencia' || fase === 'saindo';
 
   return (
-    <div className="dialogo" onClick={avancarTexto} ref={painelRef}>
-      {fase === 'entrando' ? (
-        <p className="narracao aguardando">…</p>
-      ) : (
-        <p className="narracao">{fase === 'narrando' ? narr.mostrado : textoNarracao}</p>
-      )}
-
-      {mostrarFala && (
-        <div className="fala">
-          <Retrato aparencia={falante.aparencia} cabeca={quem === 'cabeca'} />
-          <div>
-            <p className="falante">{falante.nome}</p>
-            <p className="fala-texto">“{fase === 'falando' ? fala.mostrado : textoFala}”</p>
+    <>
+      <div className="painel painel-texto" onClick={avancarTexto}>
+        {fase === 'entrando' ? (
+          <p className="narracao aguardando">…</p>
+        ) : (
+          <p className="narracao">{fase === 'narrando' ? narr.mostrado : textoNarracao}</p>
+        )}
+        {mostrarFala && (
+          <div className="fala">
+            <Retrato aparencia={falante.aparencia} cabeca={quem === 'cabeca'} />
+            <div>
+              <p className="falante">{falante.nome}</p>
+              <p className="fala-texto">“{fase === 'falando' ? fala.mostrado : textoFala}”</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {(fase === 'narrando' || fase === 'falando') && <p className="dica">clique ou Enter para avançar</p>}
+      </div>
 
-      {mostrarOpcoes && (
-        <div className="opcoes" role="group" aria-label="Escolhas">
-          {opcoes.map((o, pos) => {
-            const marcada = escolhida === o.id;
-            if (escolhida !== null && !marcada) return null;
-            return (
+      <div className="painel painel-opcoes" onClick={avancarTexto} ref={painelRef}>
+        {titulo && (
+          <div className="cabecalho-opcoes">
+            {etiqueta && <span className={`etiqueta ${etiqueta.tipo}`}>{etiqueta.texto}</span>}
+            <h2>{titulo}</h2>
+          </div>
+        )}
+        {!mostrarOpcoes && <p className="espera">Leia a cena ao lado…</p>}
+        {mostrarOpcoes && (
+          <div className="opcoes" role="group" aria-label="Escolhas">
+            {opcoes.map((o, pos) => {
+              const marcada = escolhida === o.id;
+              if (escolhida !== null && !marcada) return null;
+              return (
+                <button
+                  key={o.id}
+                  className={`opcao ${marcada ? 'marcada' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    escolher(o.id);
+                  }}
+                  disabled={fase !== 'escolhendo' && !marcada}
+                  aria-pressed={marcada}
+                >
+                  <span className="letra">{LETRAS[pos]}</span>
+                  <span className="opcao-corpo">
+                    <span className="opcao-texto">{personalizar(o.texto, perfil)}</span>
+                    {o.detalhe && <span className="opcao-detalhe">{o.detalhe}</span>}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {(fase === 'consequencia' || fase === 'saindo') && (
+          <div className="consequencia" aria-live="polite">
+            <p>{fase === 'consequencia' ? cons.mostrado : textoConsequencia}</p>
+            {cons.completo && (
               <button
-                key={o.id}
-                className={`opcao ${marcada ? 'marcada' : ''} ${escolhida !== null && !marcada ? 'apagada' : ''}`}
+                className="botao principal"
                 onClick={(e) => {
                   e.stopPropagation();
-                  escolher(o.id);
+                  void continuar();
                 }}
-                disabled={fase !== 'escolhendo' && !marcada}
-                aria-pressed={marcada}
+                disabled={fase === 'saindo'}
+                autoFocus
               >
-                <span className="letra">{LETRAS[pos]}</span>
-                <span className="opcao-corpo">
-                  <span className="opcao-texto">{personalizar(o.texto, perfil)}</span>
-                  {o.detalhe && <span className="opcao-detalhe">{o.detalhe}</span>}
-                </span>
+                {rotuloContinuar} ▶
               </button>
-            );
-          })}
-        </div>
-      )}
-
-      {(fase === 'consequencia' || fase === 'saindo') && (
-        <div className="consequencia" aria-live="polite">
-          <p>{fase === 'consequencia' ? cons.mostrado : textoConsequencia}</p>
-          {cons.completo && (
-            <button
-              className="botao principal"
-              onClick={(e) => {
-                e.stopPropagation();
-                void continuar();
-              }}
-              disabled={fase === 'saindo'}
-              autoFocus
-            >
-              {rotuloContinuar} ▶
-            </button>
-          )}
-        </div>
-      )}
-
-      {(fase === 'narrando' || fase === 'falando') && <p className="dica">clique ou Enter para avançar</p>}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

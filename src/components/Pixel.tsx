@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { som } from '../audio';
+import { alternarMudo, estaMudo, som } from '../audio';
 import { Palco } from '../pixel/palco';
 import { sprite, spriteCabecaPorco, type Aparencia } from '../pixel/sprites';
 
@@ -35,6 +35,7 @@ export function PalcoCanvas({
     <div className="palco">
       <canvas ref={canvasRef} role="img" aria-label={rotulo ?? 'Cena do jogo em pixel art'} />
       {children}
+      <BotaoSom />
     </div>
   );
 }
@@ -89,4 +90,21 @@ export function useDigitacao(texto: string, ativo: boolean, comSom: 'fala' | 'na
     completo: n >= texto.length,
     completar: () => setN(texto.length),
   };
+}
+
+export function BotaoSom({ fixo = false }: { fixo?: boolean }) {
+  const [mudo, setMudo] = useState(estaMudo());
+  return (
+    <button
+      className={`botao-mudo ${fixo ? 'fixo' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        setMudo(alternarMudo());
+      }}
+      aria-label={mudo ? 'Ligar som' : 'Desligar som'}
+      title={mudo ? 'Ligar som' : 'Desligar som'}
+    >
+      {mudo ? '♪̸' : '♪'}
+    </button>
+  );
 }

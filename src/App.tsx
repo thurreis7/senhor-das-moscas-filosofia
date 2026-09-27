@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { gerarImagemResultado } from './imagem';
-import { alternarMudo, ambienteSom, estaMudo, som } from './audio';
+import { ambienteSom, som } from './audio';
 import { Cena } from './components/Cena';
-import { Boneco, PalcoCanvas, Retrato, useDigitacao } from './components/Pixel';
+import { Boneco, BotaoSom, PalcoCanvas, Retrato, useDigitacao } from './components/Pixel';
 import { ENCENACAO_FINAL, ENCENACAO_INICIAL, ENCENACOES } from './data/cenas';
 import { OPCOES_INICIAIS, type ContratualistaId } from './data/finais';
 import { GRUPO_POR_ID, PENSADOR_POR_ID } from './data/pensadores';
@@ -117,7 +117,6 @@ export default function App() {
   const [jogador, setJogador] = useState<Jogador>(salvoInicial?.jogador ?? JOGADOR_PADRAO);
   const [partida, setPartida] = useState<Partida | null>(salvoInicial?.partida ?? null);
   const [visitante, setVisitante] = useState(compartilhado);
-  const [mudo, setMudo] = useState(estaMudo());
 
   useEffect(() => {
     if (!visitante) salvar({ jogador, partida });
@@ -140,14 +139,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <button
-        className="botao-mudo"
-        onClick={() => setMudo(alternarMudo())}
-        aria-label={mudo ? 'Ligar som' : 'Desligar som'}
-        title={mudo ? 'Ligar som' : 'Desligar som'}
-      >
-        {mudo ? '♪̸' : '♪'}
-      </button>
+      {(tela === 'criador' || tela === 'resultado' || tela === 'creditos') && <BotaoSom fixo />}
 
       {tela === 'inicio' && (
         <TelaInicio
@@ -480,6 +472,8 @@ function TelaEscolha({ jogador, escolher }: { jogador: Jogador; escolher: (c: Co
           opcoes={OPCOES_INICIAIS.map((o, i) => ({ id: i, texto: o.titulo, detalhe: `${o.lema} — ${o.descricao}` }))}
           consequencia={(i) => OPCOES_INICIAIS[i].introducao + ' São 20 situações. Não existe resposta certa: escolha o que você realmente faria.'}
           rotuloContinuar="Começar"
+          titulo="Como a ilha deve ser organizada?"
+          etiqueta={{ texto: "Primeira decisão", tipo: "filme" }}
           aoTerminar={(i) => escolher(OPCOES_INICIAIS[i].id)}
         />
       )}
@@ -558,6 +552,8 @@ function TelaJogo({
           opcoes={ordem.map((i) => ({ id: i, texto: situacao.opcoes[i].texto, civ: situacao.opcoes[i].civ }))}
           consequencia={(i) => situacao.opcoes[i].consequencia}
           rotuloContinuar={indice + 1 === total ? 'Ver o fim da história' : 'Continuar'}
+          titulo={situacao.titulo}
+          etiqueta={{ texto: situacao.tipo === 'filme' ? 'Cena do filme' : 'Imprevisto', tipo: situacao.tipo }}
           aoTerminar={(opcao) => escolher({ situacaoId: situacao.id, opcao })}
         />
       )}
@@ -613,15 +609,8 @@ function TelaFinal({ jogador, partida, seguir }: { jogador: Jogador; partida: Pa
   return (
     <main className="tela tela-jogo">
       <PalcoCanvas aparencia={jogador.aparencia} aoCriar={setPalco} rotulo="A ilha em chamas" />
-      <div className="dialogo" onClick={() => void avancar()}>
-        <p className="sobretitulo">Epílogo · {resultado.final.titulo}</p>
-        {textos.slice(0, Math.max(0, paragrafo)).map((t, i) => (
-          <p key={i} className="narracao">
-            {t}
-          </p>
-        ))}
-        {paragrafo >= 0 && <p className="narracao">{dig.mostrado}</p>}
-        {mostrarOficial && paragrafo >= 1 && (
+      <div className="painel painel-texto" onClick={() => void avancar()}>
+        {mostrarOficial && paragrafo >= 1 ? (
           <div className="fala">
             <Retrato aparencia={{ pele: '#d9a77f', cabelo: 'curto', corCabelo: '#1f1a17', camisa: '#f4f1ea', quepe: true }} />
             <div>
@@ -629,7 +618,21 @@ function TelaFinal({ jogador, partida, seguir }: { jogador: Jogador; partida: Pa
               <p className="fala-texto">“{falaOficial}”</p>
             </div>
           </div>
+        ) : (
+          <p className="narracao aguardando">A fumaça sobe da ilha…</p>
         )}
+      </div>
+      <div className="painel painel-opcoes" onClick={() => void avancar()}>
+        <div className="cabecalho-opcoes">
+          <span className="etiqueta filme">Epílogo</span>
+          <h2>{resultado.final.titulo}</h2>
+        </div>
+        {textos.slice(0, Math.max(0, paragrafo)).map((t, i) => (
+          <p key={i} className="narracao">
+            {t}
+          </p>
+        ))}
+        {paragrafo >= 0 && <p className="narracao">{dig.mostrado}</p>}
         {acabou ? (
           <div className="acoes">
             <button

@@ -123,9 +123,9 @@ input {
 }
 
 .botao-mudo {
-  position: fixed;
-  bottom: 12px;
-  left: 12px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
   z-index: 10;
   width: 42px;
   height: 42px;
@@ -913,33 +913,6 @@ summary:focus-visible,
   }
 }
 
-/* notebook e telas largas: palco à esquerda, diálogo à direita */
-@media (min-width: 760px) {
-  .tela-jogo {
-    width: min(100%, 1500px);
-    min-width: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
-    align-items: start;
-    gap: 16px 24px;
-  }
-  .tela-jogo .barra-jogo {
-    grid-column: 1 / -1;
-  }
-  .tela-jogo .palco {
-    max-width: calc((100svh - 90px) * 16 / 9);
-  }
-  .tela-jogo .dialogo {
-    max-height: calc(100svh - 110px);
-    overflow-y: auto;
-    position: sticky;
-    top: 16px;
-  }
-  .tela-jogo .opcoes {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* fonte pixel só em títulos, nomes e botões; o resto usa Inter para ficar nítido */
 .titulo-tela,
 .titulo-sobre-palco,
@@ -1011,5 +984,123 @@ summary:focus-visible,
 @media (max-width: 520px) {
   .dias-texto span {
     display: none;
+  }
+}
+
+.botao-mudo.fixo {
+  position: fixed;
+  top: auto;
+  right: auto;
+  bottom: 12px;
+  left: 12px;
+}
+
+/* ---------- tela de jogo: ocupa 100% da janela, sem rolagem ---------- */
+.tela-jogo {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 12px 12px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 100%;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-areas: 'barra' 'palco' 'texto' 'opcoes';
+  overflow: hidden;
+  font-size: clamp(12px, min(1.1vw + 0.7vh, 2.4vh), 17px);
+}
+.tela-jogo > .barra-jogo {
+  grid-area: barra;
+}
+.tela-jogo > .palco {
+  grid-area: palco;
+  box-shadow: none;
+}
+.tela-jogo > .painel-texto {
+  grid-area: texto;
+}
+.tela-jogo > .painel-opcoes {
+  grid-area: opcoes;
+}
+.tela-jogo .painel {
+  box-shadow: none;
+  padding: 12px 14px;
+  min-height: 0;
+  overflow: auto;
+}
+.tela-jogo .narracao,
+.tela-jogo .fala-texto,
+.tela-jogo .consequencia p {
+  font-size: 1em;
+}
+.tela-jogo .opcao {
+  font-size: 0.93em;
+  padding: 7px 10px;
+}
+.tela-jogo .opcoes {
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+.tela-jogo .fala {
+  margin-bottom: 0;
+}
+.tela-jogo .retrato {
+  width: 52px !important;
+  height: 46px !important;
+}
+.cabecalho-opcoes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.cabecalho-opcoes h2 {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: 1.35em;
+  line-height: 1.1;
+}
+.espera {
+  margin: 0;
+  color: var(--texto-suave);
+  font-style: italic;
+}
+
+/* celular em pé: esconde a narração quando as opções aparecem */
+@media (max-width: 759px), (orientation: portrait) {
+  .tela-jogo:has(.painel-opcoes .opcao) .painel-texto .narracao {
+    display: none;
+  }
+  .tela-jogo .cabecalho-opcoes {
+    display: none;
+  }
+  .tela-jogo .espera {
+    display: none;
+  }
+  .tela-jogo .dica {
+    display: none;
+  }
+}
+
+/* notebook / tela deitada: cena e texto à esquerda, opções à direita */
+@media (min-width: 760px) and (orientation: landscape) {
+  .tela-jogo {
+    grid-template-columns: min(64vw, calc((100dvh - clamp(270px, 38dvh, 320px)) * 16 / 9)) minmax(300px, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'barra barra'
+      'palco opcoes'
+      'texto opcoes';
+  }
+}
+
+@media (max-width: 759px) {
+  .botao-mudo:not(.fixo) {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
   }
 }
