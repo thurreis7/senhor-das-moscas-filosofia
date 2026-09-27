@@ -208,10 +208,9 @@ function desenharFixo(ctx: Ctx, cenario: CenarioId, hora: Hora) {
         areia(ctx, 106);
         break;
       }
+      morroAoFundo(ctx, 72);
       mar(ctx, 72, 104);
       areia(ctx, 108);
-      palmeira(ctx, 14, 118, 58, 1);
-      palmeira(ctx, 226, 116, 52, -1);
       break;
     }
     case 'mata':
@@ -246,24 +245,24 @@ function desenharFixo(ctx: Ctx, cenario: CenarioId, hora: Hora) {
     case 'rocha': {
       ceu(ctx, hora, 80);
       nuvens(ctx, hora);
-      mar(ctx, 80, H);
-      ctx.fillStyle = '#6f675b';
-      for (let x = 0; x < 196; x++) {
-        const topo = 104 - Math.round(4 * Math.sin(x / 11));
+      mar(ctx, 80, 112);
+      ctx.fillStyle = '#857a6a';
+      for (let x = 0; x < W; x++) {
+        const topo = 106 + Math.round(2 * Math.sin(x / 9));
         ctx.fillRect(x, topo, 1, H - topo);
       }
       chaoDePedra(ctx, 112);
-      ret(ctx, 196, 112, 60, 32, '#2a74a0');
-      for (let y = 112; y < H; y += 2) ret(ctx, 190 + ((y / 2) % 3), y, 8, 2, '#5d564b');
-      // a pedra no alto
-      ret(ctx, 206, 58, 26, 20, '#7d7468');
-      ret(ctx, 202, 62, 34, 12, '#7d7468');
-      ret(ctx, 210, 58, 10, 4, '#958b7c');
-      ret(ctx, 196, 78, 60, 34, '#5d564b');
+      // a rocha alta da tribo, com a pedra no topo
+      ret(ctx, 202, 60, 54, 84, '#6f675b');
+      ret(ctx, 198, 68, 6, 76, '#5d564b');
+      ret(ctx, 202, 60, 54, 2, '#958b7c');
+      for (let y = 70; y < H; y += 9) ret(ctx, 206 + ((y * 5) % 20), y, 18, 1, '#5d564b');
+      ret(ctx, 216, 44, 24, 16, '#8d8474');
+      ret(ctx, 212, 48, 32, 12, '#8d8474');
+      ret(ctx, 220, 44, 10, 3, '#a39888');
       break;
     }
   }
-  if (cenario === 'praia' || cenario === 'acampamento') morroAoFundo(ctx, 72);
 }
 
 const cacheFixo = new Map<string, HTMLCanvasElement>();
@@ -280,12 +279,30 @@ export function fundoFixo(cenario: CenarioId, hora: Hora): HTMLCanvasElement {
   return canvas;
 }
 
+const cachePalmeiras = new Map<string, HTMLCanvasElement | null>();
+
+/** Elementos fixos que ficam na frente do mar (palmeiras). */
+export function frenteFixa(cenario: CenarioId): HTMLCanvasElement | null {
+  if (cachePalmeiras.has(cenario)) return cachePalmeiras.get(cenario)!;
+  let canvas: HTMLCanvasElement | null = null;
+  if (cenario === 'praia' || cenario === 'acampamento') {
+    canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+    palmeira(ctx, 14, 118, 58, 1);
+    palmeira(ctx, 226, 116, 52, -1);
+  }
+  cachePalmeiras.set(cenario, canvas);
+  return canvas;
+}
+
 /** Faixa de água que tem ondas animadas. */
 export function faixaDoMar(cenario: CenarioId): [number, number] | null {
   if (cenario === 'mar') return [64, H];
   if (cenario === 'praia' || cenario === 'acampamento') return [72, 104];
   if (cenario === 'morro') return [96, 112];
-  if (cenario === 'rocha') return [80, 112];
+  if (cenario === 'rocha') return [80, 104];
   return null;
 }
 
@@ -365,16 +382,23 @@ export function estrelas(ctx: Ctx, t: number, ate: number) {
 }
 
 export function chuva(ctx: Ctx, t: number) {
-  ctx.fillStyle = 'rgba(180,200,220,0.55)';
-  for (let i = 0; i < 90; i++) {
-    const x = (i * 37 + t * 60) % (W + 40) - 20;
-    const y = (i * 53 + t * 260) % (H + 20) - 10;
-    ctx.fillRect(Math.round(x), Math.round(y), 1, 4);
+  ctx.fillStyle = 'rgba(190,205,230,0.4)';
+  for (let i = 0; i < 70; i++) {
+    const x = Math.round(((i * 53 + t * 70) % (W + 40)) - 20);
+    const y = Math.round(((i * 97 + t * 240) % (H + 20)) - 10);
+    ctx.fillRect(x, y, 1, 2);
+    ctx.fillRect(x - 1, y + 2, 1, 2);
+    ctx.fillRect(x - 2, y + 4, 1, 2);
+  }
+  ctx.fillStyle = 'rgba(210,225,240,0.5)';
+  for (let i = 0; i < 14; i++) {
+    if (Math.sin(t * 9 + i * 2.3) < 0.6) continue;
+    ctx.fillRect((i * 71 + Math.floor(t * 3) * 37) % W, 118 + ((i * 13) % 22), 3, 1);
   }
 }
 
 export function relampago(ctx: Ctx, t: number) {
-  const ciclo = t % 7;
+  const ciclo = t % 11;
   if (ciclo > 0.12 && ciclo < 0.22) {
     ctx.fillStyle = 'rgba(230,235,255,0.35)';
     ctx.fillRect(0, 0, W, H);

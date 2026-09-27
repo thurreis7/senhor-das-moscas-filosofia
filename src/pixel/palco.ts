@@ -6,6 +6,7 @@ import {
   chuva,
   estrelas,
   fogueira,
+  frenteFixa,
   fundoFixo,
   H,
   moscas,
@@ -244,6 +245,8 @@ export class Palco {
     if (efeitos.includes('aeronave')) aeronave(ctx, t, this.inicioAeronave);
     if (cenario === 'incendio') chamasNaMata(ctx, t);
     ondas(ctx, cenario, t);
+    const frente = frenteFixa(cenario);
+    if (frente) ctx.drawImage(frente, 0, 0);
 
     if (cenario === 'acampamento') {
       const caidos = objetos.includes('abrigos-caidos');
@@ -258,7 +261,7 @@ export class Palco {
     this.desenharObjetos(ctx, objetos, t, 'frente');
 
     tingir(ctx, hora);
-    const fogoX = cenario === 'morro' ? 150 : cenario === 'praia' || cenario === 'acampamento' ? 62 : 128;
+    const fogoX = cenario === 'morro' ? 150 : cenario === 'praia' || cenario === 'acampamento' ? 70 : 128;
     if (objetos.includes('fogueira') && hora !== 'dia') brilhoDoFogo(ctx, fogoX, PES - 6, t);
     if (objetos.includes('fogueira')) fogueira(ctx, fogoX, PES + 2, t, true);
     if (objetos.includes('fogueira-apagada')) fogueira(ctx, fogoX, PES + 2, t, false);
@@ -342,9 +345,9 @@ export class Palco {
           r(74, PES, 6, 1, '#c99f84');
         }
         if (o === 'caixa') {
-          r(150, PES - 10, 18, 12, '#6b7f5a');
-          r(150, PES - 10, 18, 2, '#56684a');
-          r(157, PES - 6, 4, 3, '#e0d8b0');
+          r(116, PES - 10, 18, 12, '#6b7f5a');
+          r(116, PES - 10, 18, 2, '#56684a');
+          r(123, PES - 6, 4, 3, '#e0d8b0');
         }
         if (o === 'oferenda') {
           r(196, PES - 2, 20, 4, '#6e5230');

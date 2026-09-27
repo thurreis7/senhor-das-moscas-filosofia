@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { gerarImagemResultado } from './imagem';
 import { alternarMudo, ambienteSom, estaMudo, som } from './audio';
 import { Cena } from './components/Cena';
 import { Boneco, PalcoCanvas, Retrato, useDigitacao } from './components/Pixel';
@@ -686,18 +687,50 @@ function TelaResultado({
   const nome = jogador.perfil.nome || 'Cadete';
   const sobrenome = (n: string) => n.split(' ').pop();
 
+  const url = `${window.location.origin}${window.location.pathname}#r=${codificar(contratualista, escolhas)}&j=${encodeURIComponent(codificarJogador(jogador))}`;
+  const texto = `Na ilha de O Senhor das Moscas, eu pensei como ${primeiro.nome}. E você?`;
+
+  function imagem() {
+    return gerarImagemResultado({
+      nome,
+      aparencia: { ...jogador.aparencia, pintura: resultado.final.titulo === 'A fera éramos nós' },
+      final: resultado.final.titulo,
+      top: top.map((a) => {
+        const p = PENSADOR_POR_ID[a.id];
+        const g = GRUPO_POR_ID[p.grupo];
+        return { nome: p.nome, grupo: g.nome, cor: g.cor, porcentagem: a.porcentagem };
+      }),
+      url: window.location.origin,
+    });
+  }
+
+  async function baixarImagem() {
+    som.clique();
+    const blob = await imagem();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `resultado-${nome.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+    setAviso('Imagem baixada!');
+  }
+
   async function compartilhar() {
     som.clique();
-    const url = `${window.location.origin}${window.location.pathname}#r=${codificar(contratualista, escolhas)}&j=${encodeURIComponent(codificarJogador(jogador))}`;
-    const texto = `Na ilha de O Senhor das Moscas, eu pensei como ${primeiro.nome}. E você?`;
     try {
+      const arquivo = new File([await imagem()], 'resultado.png', { type: 'image/png' });
+      if (navigator.canShare?.({ files: [arquivo] })) {
+        await navigator.share({ files: [arquivo], title: 'O Senhor das Moscas — Edição Filosófica', text: `${texto} ${url}` });
+        return;
+      }
       if (navigator.share) {
         await navigator.share({ title: 'O Senhor das Moscas — Edição Filosófica', text: texto, url });
         return;
       }
       await navigator.clipboard.writeText(`${texto} ${url}`);
       setAviso('Link copiado!');
-    } catch {
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return;
       history.replaceState(null, '', url);
       setAviso('Não deu para copiar. O link do resultado está na barra de endereço.');
     }
@@ -826,8 +859,11 @@ function TelaResultado({
           </button>
         ) : (
           <>
-            <button className="botao principal" onClick={() => void compartilhar()}>
-              Compartilhar resultado
+            <button className="botao principal" onClick={() => void baixarImagem()}>
+              Baixar imagem
+            </button>
+            <button className="botao" onClick={() => void compartilhar()}>
+              Compartilhar
             </button>
             <button className="botao" onClick={jogarDeNovo}>
               Jogar de novo
