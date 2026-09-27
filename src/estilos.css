@@ -125,7 +125,7 @@ input {
 .botao-mudo {
   position: fixed;
   bottom: 12px;
-  right: 12px;
+  left: 12px;
   z-index: 10;
   width: 42px;
   height: 42px;
@@ -914,12 +914,12 @@ summary:focus-visible,
 }
 
 /* notebook e telas largas: palco à esquerda, diálogo à direita */
-@media (min-width: 1100px) and (min-aspect-ratio: 4/3) {
+@media (min-width: 760px) {
   .tela-jogo {
     width: min(100%, 1500px);
     min-width: 0;
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr);
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
     align-items: start;
     gap: 16px 24px;
   }
@@ -930,8 +930,10 @@ summary:focus-visible,
     max-width: calc((100svh - 90px) * 16 / 9);
   }
   .tela-jogo .dialogo {
-    max-height: calc(100svh - 90px);
+    max-height: calc(100svh - 110px);
     overflow-y: auto;
+    position: sticky;
+    top: 16px;
   }
   .tela-jogo .opcoes {
     grid-template-columns: 1fr;
@@ -959,4 +961,55 @@ summary:focus-visible,
 .etiqueta,
 .botao-mudo {
   font-family: var(--pixel);
+}
+
+/* barra de dias */
+.dias {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.dias-texto {
+  font-family: var(--pixel);
+  white-space: nowrap;
+  font-size: 1rem;
+}
+.dias-texto strong {
+  color: var(--fogo);
+}
+.dias-texto span {
+  color: var(--texto-suave);
+  font-family: var(--texto-fonte);
+  font-size: 0.85rem;
+  margin-left: 8px;
+}
+.dias-trilha {
+  flex: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+}
+.dia {
+  height: 12px;
+  background: #2a3042;
+  border: 1px solid #3a4258;
+}
+.dia.feito {
+  background: var(--fogo-escuro);
+  border-color: var(--fogo);
+}
+.dia.atual {
+  background: var(--fogo);
+  border-color: #fff6e0;
+  box-shadow: 0 0 0 2px rgba(243, 156, 52, 0.35);
+}
+.dia.filme:not(.feito):not(.atual) {
+  border-color: #6b5a3a;
+}
+@media (max-width: 520px) {
+  .dias-texto span {
+    display: none;
+  }
 }

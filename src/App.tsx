@@ -520,11 +520,20 @@ function TelaJogo({
         <button className="link" onClick={sair}>
           ← Sair
         </button>
-        <span className="contador">
-          Dia {indice + 1}/{total}
-        </span>
-        <div className="progresso" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={indice}>
-          <div className="progresso-barra" style={{ width: `${(indice / total) * 100}%` }} />
+        <div className="dias">
+          <span className="dias-texto">
+            Dia <strong>{indice + 1}</strong> de {total}
+            <span>{total - indice - 1 === 0 ? 'último dia' : `faltam ${total - indice - 1}`}</span>
+          </span>
+          <div className="dias-trilha" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={indice + 1}>
+            {partida.ordem.map((id, i) => (
+              <span
+                key={id}
+                className={`dia ${i < indice ? 'feito' : i === indice ? 'atual' : ''} ${SITUACAO_POR_ID[id].tipo === 'filme' ? 'filme' : ''}`}
+                title={i < indice ? SITUACAO_POR_ID[id].titulo : `Dia ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </header>
       <PalcoCanvas aparencia={jogador.aparencia} aoCriar={setPalco} rotulo={situacao.titulo}>
