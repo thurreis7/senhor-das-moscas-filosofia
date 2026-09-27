@@ -234,7 +234,7 @@ export function Cena({
             <h2>{titulo}</h2>
           </div>
         )}
-        {!mostrarOpcoes && <p className="espera">Leia a cena ao lado…</p>}
+        {!mostrarOpcoes && <p className="espera">As escolhas aparecem aqui…</p>}
         {mostrarOpcoes && (
           <div className="opcoes" role="group" aria-label="Escolhas">
             {opcoes.map((o, pos) => {
