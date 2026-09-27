@@ -1088,7 +1088,7 @@ summary:focus-visible,
 /* notebook / tela deitada: cena e texto à esquerda, opções à direita */
 @media (min-width: 760px) and (orientation: landscape) {
   .tela-jogo {
-    grid-template-columns: min(64vw, calc((100dvh - clamp(270px, 38dvh, 320px)) * 16 / 9)) minmax(300px, 1fr);
+    grid-template-columns: min(calc(100vw - 316px), calc((100dvh - clamp(228px, 30.5dvh, 270px)) * 16 / 9)) minmax(280px, 1fr);
     grid-template-rows: auto auto minmax(0, 1fr);
     grid-template-areas:
       'barra barra'
@@ -1102,5 +1102,23 @@ summary:focus-visible,
     width: 32px;
     height: 32px;
     font-size: 1rem;
+  }
+}
+
+@media (min-width: 760px) and (orientation: landscape) {
+  .tela-jogo .painel-texto {
+    font-size: 0.94em;
+    padding: 10px 12px;
+  }
+  .tela-jogo .painel-texto .narracao {
+    margin-bottom: 8px;
+  }
+  .tela-jogo .painel-texto .fala {
+    padding: 6px 10px;
+    gap: 10px;
+  }
+  .tela-jogo .painel-texto .retrato {
+    width: 44px !important;
+    height: 39px !important;
   }
 }
