@@ -126,11 +126,11 @@ export function Cena({
 
   useEffect(() => {
     if (fase === 'narrando' && narr.completo) {
-      const id = setTimeout(() => setFase('falando'), 350);
+      const id = setTimeout(() => setFase('falando'), 1200);
       return () => clearTimeout(id);
     }
     if (fase === 'falando' && fala.completo) {
-      const id = setTimeout(() => setFase('escolhendo'), 200);
+      const id = setTimeout(() => setFase('escolhendo'), 800);
       return () => clearTimeout(id);
     }
   }, [fase, narr.completo, fala.completo]);

@@ -80,9 +80,9 @@ export function useDigitacao(texto: string, ativo: boolean, comSom: 'fala' | 'na
   useEffect(() => {
     if (!ativo || n >= texto.length) return;
     const id = setTimeout(() => {
-      setN((v) => Math.min(texto.length, v + 2));
-      if (comSom && n % 4 === 0 && texto[n] !== ' ') som.blip(comSom === 'narracao');
-    }, 28);
+      setN((v) => Math.min(texto.length, v + 1));
+      if (comSom && n % 3 === 0 && texto[n] !== ' ') som.blip(comSom === 'narracao');
+    }, 38);
     return () => clearTimeout(id);
   }, [ativo, n, texto, comSom]);
   return {
